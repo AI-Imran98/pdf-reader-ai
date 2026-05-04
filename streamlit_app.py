@@ -18,7 +18,7 @@ st.set_page_config(
 
 # Title
 st.title("📄 PDF Reader AI")
-st.subheader("যেকোনো PDF থেকে প্রশ্ন করুন!")
+st.subheader("Ask any question from your PDF instantly!")
 
 # PDF read function
 def read_pdf(file):
@@ -31,15 +31,16 @@ def read_pdf(file):
 # AI question function
 def ask_question(pdf_text, question):
     prompt = f"""
-    তুমি একজন AI Assistant।
-    শুধুমাত্র নিচের PDF এর তথ্য থেকে উত্তর দাও।
-    PDF এ না থাকলে বলো "এই তথ্য PDF এ নেই"।
-    বাংলায় উত্তর দাও।
+    You are a helpful AI Assistant.
+    Answer questions ONLY from the PDF content below.
+    If the answer is not in the PDF, say 
+    "This information is not available in the PDF."
+    Always answer in English clearly and concisely.
 
-    PDF তথ্য:
+    PDF Content:
     {pdf_text}
 
-    প্রশ্ন: {question}
+    Question: {question}
     """
     response = client.models.generate_content(
         model="gemini-2.0-flash",
@@ -49,16 +50,16 @@ def ask_question(pdf_text, question):
 
 # Upload PDF
 uploaded_file = st.file_uploader(
-    "PDF আপলোড করুন",
+    "Upload your PDF file",
     type="pdf"
 )
 
 if uploaded_file is not None:
     # Read PDF
-    with st.spinner("PDF পড়া হচ্ছে..."):
+    with st.spinner("Reading PDF..."):
         pdf_text = read_pdf(uploaded_file)
-    
-    st.success(f"✅ PDF পড়া হয়েছে!")
+
+    st.success(f"✅ PDF loaded successfully!")
 
     # Chat history
     if "messages" not in st.session_state:
@@ -72,7 +73,7 @@ if uploaded_file is not None:
             st.chat_message("assistant").write(message["content"])
 
     # Question input
-    question = st.chat_input("প্রশ্ন করুন...")
+    question = st.chat_input("Ask a question about your PDF...")
 
     if question:
         # Show user question
@@ -83,7 +84,7 @@ if uploaded_file is not None:
         })
 
         # Get AI answer
-        with st.spinner("AI উত্তর দিচ্ছে..."):
+        with st.spinner("AI is thinking..."):
             answer = ask_question(pdf_text, question)
 
         # Show answer
@@ -94,10 +95,10 @@ if uploaded_file is not None:
         })
 
 else:
-    st.info("👆 উপরে PDF আপলোড করুন")
+    st.info("👆 Please upload a PDF file to get started")
     st.markdown("""
-    ### কীভাবে ব্যবহার করবেন:
-    1. 📤 যেকোনো PDF আপলোড করুন
-    2. ❓ প্রশ্ন করুন
-    3. 🤖 AI উত্তর দেবে!
+    ### How to use:
+    1. 📤 Upload any PDF document
+    2. ❓ Ask any question about the PDF
+    3. 🤖 Get instant AI-powered answers!
     """)
